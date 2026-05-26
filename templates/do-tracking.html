@@ -1,0 +1,47 @@
+<script type="text/x-template" id="tpl-tracking">
+
+<div>
+
+  <h3 class="mb-4">
+    Tracking Delivery Order
+  </h3>
+
+  <input
+    type="text"
+    class="form-control mb-3"
+    v-model="keyword"
+    placeholder="Cari DO atau NIM"
+    @keyup.enter="searchTracking"
+    @keyup.esc="resetSearch"
+  >
+
+  <div
+    class="card mb-3"
+    v-for="(item,index) in filteredTracking"
+    :key="index"
+  >
+
+    <div class="card-body">
+
+      <p>
+        <strong>Nama:</strong>
+        {{ Object.values(item)[0].nama }}
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        {{ Object.values(item)[0].status }}
+      </p>
+
+      <p>
+        <strong>Tanggal:</strong>
+        {{ formatDate(Object.values(item)[0].tanggalKirim) }}
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+</script>

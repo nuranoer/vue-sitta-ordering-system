@@ -1,0 +1,48 @@
+<script type="text/x-template" id="tpl-modal">
+
+<div
+  class="modal fade show"
+  style="display:block;background:rgba(0,0,0,0.5)"
+>
+
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h5>Konfirmasi</h5>
+
+      </div>
+
+      <div class="modal-body">
+
+        <p>{{ message }}</p>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button
+          class="btn btn-secondary"
+          @click="$emit('close')"
+        >
+          Batal
+        </button>
+
+        <button
+          class="btn btn-danger"
+          @click="$emit('confirm')"
+        >
+          Hapus
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</script>
