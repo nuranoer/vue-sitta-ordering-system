@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
   <meta charset="UTF-8">
-  <title>SITTA Vue 2</title>
+
+  <title>
+    SITTA Vue 2
+  </title>
 
   <link
     rel="stylesheet"
@@ -20,6 +24,8 @@
 <body>
 
 <div id="app">
+
+  <!-- NAVBAR -->
 
   <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
 
@@ -39,7 +45,7 @@
         </button>
 
         <button
-          class="btn btn-warning"
+          class="btn btn-warning me-2"
           @click="tab='tracking'"
         >
           Tracking
@@ -57,6 +63,8 @@
     </div>
 
   </nav>
+
+  <!-- CONTENT -->
 
   <div class="container mt-4">
 
@@ -82,17 +90,453 @@
 
 </div>
 
+<!-- TEMPLATE STATUS -->
+
+<script type="text/x-template" id="tpl-status-badge">
+
+<div>
+
+  <span
+    v-if="qty >= safety"
+    class="badge bg-success"
+  >
+    Aman
+  </span>
+
+  <span
+    v-else-if="qty > 0"
+    class="badge bg-warning text-dark"
+  >
+    Menipis
+  </span>
+
+  <span
+    v-else
+    class="badge bg-danger"
+  >
+    Kosong
+  </span>
+
+</div>
+
+</script>
+
+<!-- TEMPLATE MODAL -->
+
+<script type="text/x-template" id="tpl-modal">
+
+<div
+  class="modal fade show"
+  style="display:block;background:rgba(0,0,0,0.5)"
+>
+
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h5>
+          Konfirmasi
+        </h5>
+
+      </div>
+
+      <div class="modal-body">
+
+        <p>
+          {{ message }}
+        </p>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button
+          class="btn btn-secondary"
+          @click="$emit('close')"
+        >
+          Batal
+        </button>
+
+        <button
+          class="btn btn-danger"
+          @click="$emit('confirm')"
+        >
+          Hapus
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</script>
+
+<!-- TEMPLATE STOCK -->
+
+<script type="text/x-template" id="tpl-stock">
+
+<div>
+
+  <h3 class="mb-4">
+    Stok Bahan Ajar
+  </h3>
+
+  <!-- FILTER -->
+
+  <div class="row mb-3">
+
+    <div class="col-md-3">
+
+      <input
+        type="text"
+        class="form-control"
+        v-model="search"
+        placeholder="Cari buku..."
+      >
+
+    </div>
+
+    <div class="col-md-3">
+
+      <select
+        class="form-select"
+        v-model="selectedUPBJJ"
+      >
+
+        <option value="">
+          Semua UPBJJ
+        </option>
+
+        <option
+          v-for="(upbjj,index) in upbjjList"
+          :key="index"
+        >
+          {{ upbjj }}
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="col-md-3">
+
+      <select
+        class="form-select"
+        v-model="selectedKategori"
+      >
+
+        <option value="">
+          Semua Kategori
+        </option>
+
+        <option
+          v-for="(kategori,index) in kategoriList"
+          :key="index"
+        >
+          {{ kategori }}
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="col-md-3">
+
+      <select
+        class="form-select"
+        v-model="sortBy"
+      >
+
+        <option value="">
+          Sort
+        </option>
+
+        <option value="judul">
+          Judul
+        </option>
+
+        <option value="harga">
+          Harga
+        </option>
+
+        <option value="qty">
+          Qty
+        </option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+  <!-- TAMBAH DATA -->
+
+  <div class="card mb-4">
+
+    <div class="card-body">
+
+      <h5>
+        Tambah Bahan Ajar
+      </h5>
+
+      <div class="row">
+
+        <div class="col-md-3">
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Kode"
+            v-model="newItem.kode"
+          >
+
+        </div>
+
+        <div class="col-md-3">
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Judul"
+            v-model="newItem.judul"
+            @keyup.enter="addItem"
+          >
+
+        </div>
+
+        <div class="col-md-2">
+
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Qty"
+            v-model="newItem.qty"
+          >
+
+        </div>
+
+        <div class="col-md-2">
+
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Harga"
+            v-model="newItem.harga"
+          >
+
+        </div>
+
+        <div class="col-md-2">
+
+          <button
+            class="btn btn-success w-100"
+            @click="addItem"
+          >
+            Tambah
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+
+  <table class="table table-bordered table-hover bg-white">
+
+    <thead class="table-dark">
+
+      <tr>
+
+        <th>Kode</th>
+        <th>Judul</th>
+        <th>Kategori</th>
+        <th>UPBJJ</th>
+        <th>Harga</th>
+        <th>Qty</th>
+        <th>Status</th>
+        <th>Aksi</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr
+        v-for="(item,index) in filteredStock"
+        :key="index"
+      >
+
+        <td>{{ item.kode }}</td>
+
+        <td>{{ item.judul }}</td>
+
+        <td>{{ item.kategori }}</td>
+
+        <td>{{ item.upbjj }}</td>
+
+        <td>
+          Rp {{ formatHarga(item.harga) }}
+        </td>
+
+        <td>
+          {{ item.qty }}
+        </td>
+
+        <td>
+
+          <status-badge
+            :qty="item.qty"
+            :safety="item.safety"
+          ></status-badge>
+
+        </td>
+
+        <td>
+
+          <button
+            class="btn btn-danger btn-sm"
+            @click="confirmDelete(index)"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+  <!-- MODAL -->
+
+  <app-modal
+    v-if="showModal"
+    message="Yakin ingin menghapus data?"
+    @close="showModal=false"
+    @confirm="deleteItem"
+  ></app-modal>
+
+</div>
+
+</script>
+
+<!-- TEMPLATE TRACKING -->
+
+<script type="text/x-template" id="tpl-tracking">
+
+<div>
+
+  <h3 class="mb-4">
+    Tracking DO
+  </h3>
+
+  <input
+    type="text"
+    class="form-control mb-3"
+    placeholder="Cari NIM..."
+    v-model="keyword"
+  >
+
+  <div
+    class="card mb-3"
+    v-for="(item,index) in filteredTracking"
+    :key="index"
+  >
+
+    <div class="card-body">
+
+      <p>
+        {{ Object.values(item)[0].nama }}
+      </p>
+
+      <p>
+        {{ Object.values(item)[0].status }}
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+</script>
+
+<!-- TEMPLATE ORDER -->
+
+<script type="text/x-template" id="tpl-order">
+
+<div>
+
+  <h3 class="mb-4">
+    Form Pemesanan
+  </h3>
+
+  <div class="card">
+
+    <div class="card-body">
+
+      <div class="mb-3">
+
+        <label>
+          Paket
+        </label>
+
+        <select
+          class="form-select"
+          v-model="selectedPaket"
+        >
+
+          <option value="">
+            Pilih Paket
+          </option>
+
+          <option
+            v-for="(item,index) in paket"
+            :key="index"
+            :value="item"
+          >
+            {{ item.kode }}
+          </option>
+
+        </select>
+
+      </div>
+
+      <button
+        class="btn btn-success"
+        @click="submitOrder"
+      >
+        Pesan
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+</script>
+
+<!-- VUE -->
+
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
-<!-- Templates -->
-<script src="templates/stock-table.html"></script>
-<script src="templates/stock-table.html"></script>
-<script src="templates/order-form.html"></script>
-<script src="templates/do-tracking.html"></script>
-<script src="templates/app-modal.html"></script>
-<script src="templates/status-badge.html"></script>
+<!-- SERVICES -->
 
 <script src="js/services/api.js"></script>
+
+<!-- COMPONENTS -->
 
 <script src="js/components/status-badge.js"></script>
 <script src="js/components/app-modal.js"></script>
@@ -100,8 +544,9 @@
 <script src="js/components/do-tracking.js"></script>
 <script src="js/components/order-form.js"></script>
 
-<script src="js/app.js"></script>
+<!-- APP -->
 
+<script src="js/app.js"></script>
 
 </body>
 </html>
